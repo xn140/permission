@@ -1,0 +1,2 @@
+0:0:0:0:0:0:0:1 - - [16/May/2018:22:46:43 +0800] "POST /sys/user/save.json?username=Jack&telephone=12345678&mail=admin@qq.com&deptId=12&status=1 HTTP/1.1" 200 46 http-bio-8080-exec-2 3535
+0:0:0:0:0:0:0:1 - - [16/May/2018:22:47:45 +0800] "POST /sys/user/update.json?username=Jack&telephone=12345678&mail=admin@qq.com&deptId=12&status=1&id=1&remark=%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%94%A8%E6%88%B7 HTTP/1.1" 200 46 http-bio-8080-exec-5 158

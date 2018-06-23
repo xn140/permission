@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--加载.properties文件-->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+       <!--忽略没有找到的文件-->
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="locations">
+            <list>
+                <value>classpath:settings.properties</value>
+            </list>
+
+        </property>
+    </bean>
+    <!--配置数据源-->
+        <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+             <property name="driverClassName" value="${db.driverClassName}"/>
+             <property name="url" value="${db.url}"/>
+             <property name="username" value="${db.username}"/>
+             <property name="password" value="${db.password}"/>
+             <property name="initialSize" value="3"/>
+             <property name="minIdle" value="3"/>
+             <property name="maxActive" value="20"/>
+             <property name="maxWait" value="60000"/>
+             <!--<property name="filters" value="stat,wall"/>-->
+            <property name="filters" value="stat"/>
+            <!--配置了proxyFilters，之后就不需要在配置filter-->
+            <property name="proxyFilters">
+                <list>
+                    <ref bean="stat-filter" />
+                    <ref bean="wall-filter"/>
+                </list>
+            </property>
+        </bean>
+   <!--配置mybatis
+        sqlSessionFactory中需要配置mybatis的配置文件，
+        引入数据库来连接池
+        执行sql的xml文件
+   -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--配置mybatis包扫描
+         操作数据库的实体类，
+         注入sqlSessionFactory
+     -->
+     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+
+         <property name="basePackage" value="com.mmall.dao"/>
+         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+     </bean>
+    <!--配置事务-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+         <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <!--配置druid监控慢sql-->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="slowSqlMillis" value="3000" /> <!--慢sql的执行时间-->
+        <property name="logSlowSql" value="true" /><!--慢sql记录到日志中-->
+        <property name="mergeSql" value="true"/><!--记录sql时对sql进行格式化-->
+    </bean>
+    <!--配置监控的数据库-->
+    <bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+        <property name="dbType" value="mysql"/>
+        <property name="config" ref="wall-config" />
+    </bean>
+
+<!--
+    &lt;!&ndash;解决mybatis与druid集成后，wallFilter sql注入异常&ndash;&gt;
+-->
+    <bean id="wall-config" class="com.alibaba.druid.wall.WallConfig">
+        <property name="multiStatementAllow" value="true"/>
+    </bean>
+
+    <!--redis-->
+
+    <import resource="redis.xml"/>
+
+
+
+</beans>

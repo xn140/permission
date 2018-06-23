@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+      <!--配置特殊的appender-->
+    <appender name="permission" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    文件存放在catalina的主目录下
+    <file>${catalina.home}/logs/permission.log</file>
+    配置日志文件压缩，以及压缩文件的格式
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+    <FileNamePattern>${catalina.home}/logs/permission.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+    </rollingPolicy>
+    <layout class="ch.qos.logback.classic.PatternLayout">
+    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+    </layout>
+     </appender>
+    <!---->
+    <!--<logger name="xxx" level="INFO">-->
+    <!--<appender-ref ref="permission"/>-->
+    <!--</logger>-->
+<!--可以配置SMTPAppender,对错误日志进行监控，并把错误日志发送到邮箱-->
+    <!--还可以通过配置将项目中的日志文件通过socket发送到其他目录下-->
+    <!-- TRACE < DEBUG < INFO < WARN < ERROR -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="permission" />
+    </root>
+
+</configuration>
